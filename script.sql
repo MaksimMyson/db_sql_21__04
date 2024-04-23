@@ -64,7 +64,7 @@ CREATE TABLE LastUnit (
 );
 
 GO
-
+-- Тригер для внесення інформації про продаж у таблицю Історія
 CREATE TRIGGER RecordSaleHistory
 ON Sales
 AFTER INSERT
@@ -77,8 +77,9 @@ BEGIN
 END;
 GO
 
+-- Тригер для перенесення інформації про товари, які повністю продані, до таблиці Архів
 CREATE TRIGGER TransferToArchive
-ON Goods
+ON Sales
 AFTER UPDATE
 AS
 BEGIN
@@ -91,6 +92,7 @@ BEGIN
 END;
 GO
 
+-- Тригер для перевірки наявності існуючого клієнта
 CREATE TRIGGER PreventDuplicateCustomer
 ON Customers
 INSTEAD OF INSERT
@@ -110,6 +112,7 @@ BEGIN
 END;
 GO
 
+-- Тригер, що забороняє видалення існуючих клієнтів
 CREATE TRIGGER PreventCustomerRemoval
 ON Customers
 INSTEAD OF DELETE
@@ -120,6 +123,7 @@ BEGIN
 END;
 GO
 
+-- Тригер, що забороняє видалення працівників, прийнятих на роботу до 2015 року
 CREATE TRIGGER PreventEmployeeRemoval
 ON Employees
 INSTEAD OF DELETE
@@ -133,6 +137,7 @@ BEGIN
 END;
 GO
 
+-- Тригер для встановлення відсотка знижки при загальній сумі покупок більше 50000 грн
 CREATE TRIGGER SetDiscountPercentage
 ON Sales
 AFTER INSERT
@@ -153,12 +158,13 @@ BEGIN
 END;
 GO
 
+-- Тригер, що забороняє додавати товар конкретної фірми
 CREATE TRIGGER ProhibitCompanyGoods
 ON Goods
 INSTEAD OF INSERT
 AS
 BEGIN
-    IF (SELECT COUNT(*) FROM INSERTED WHERE Manufacturer = 'Sport, Sun and Barbell') > 0
+    IF (SELECT Manufacturer FROM INSERTED) = 'Sport, Sun and Barbell'
     BEGIN
         RAISERROR ('Adding goods from Sport, Sun and Barbell is prohibited.', 16, 1);
         ROLLBACK TRANSACTION;
@@ -172,6 +178,7 @@ BEGIN
 END;
 GO
 
+-- Тригер для перевірки кількості товару в наявності
 CREATE TRIGGER CheckStockQuantity
 ON Goods
 AFTER UPDATE
