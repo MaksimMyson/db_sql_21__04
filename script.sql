@@ -1,5 +1,3 @@
-CREATE DATABASE [db_sql_21__04];
-GO
 USE [db_sql_21__04];
 
 CREATE TABLE Goods (
@@ -160,7 +158,7 @@ ON Goods
 INSTEAD OF INSERT
 AS
 BEGIN
-    IF (SELECT Manufacturer FROM INSERTED) = 'Sport, Sun and Barbell'
+    IF (SELECT COUNT(*) FROM INSERTED WHERE Manufacturer = 'Sport, Sun and Barbell') > 0
     BEGIN
         RAISERROR ('Adding goods from Sport, Sun and Barbell is prohibited.', 16, 1);
         ROLLBACK TRANSACTION;
